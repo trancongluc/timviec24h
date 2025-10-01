@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import vn.tcl.timviec24h.config.SecurityConfiguration;
 import vn.tcl.timviec24h.domain.User;
 import vn.tcl.timviec24h.service.UserService;
-import vn.tcl.timviec24h.service.error.IdInvalidException;
+import vn.tcl.timviec24h.util.error.IdInvalidException;
 
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PutMapping;
 
 
@@ -24,8 +24,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 @RestController
 public class UserController {
     private final UserService userService;
-    public UserController(UserService userService) {
+    private final SecurityConfiguration securityConfiguration;
+    public UserController(UserService userService,SecurityConfiguration securityConfiguration) {
         this.userService = userService;
+        this.securityConfiguration = securityConfiguration;
     }
     @GetMapping("/users")
     public ResponseEntity<List<User>> getAllUser() {
@@ -38,13 +40,14 @@ public class UserController {
     
     @PostMapping("/users")
     public ResponseEntity<User> createNewUser(@RequestBody User newUser) {
+        String hasPassword = securityConfiguration.passwordEncoder().encode(newUser.getPassword());
+        newUser.setPassword(hasPassword);
        User createUser =  userService.createUser(newUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(createUser) ;
     }
     @PutMapping("/users/{id}")
     public ResponseEntity<User> updateUserById(@PathVariable("id") long id, @RequestBody User updateUser) {
         //TODO: process PUT request
-        
         return ResponseEntity.ok().body(userService.updateUser(id, updateUser))   ;
     }
    

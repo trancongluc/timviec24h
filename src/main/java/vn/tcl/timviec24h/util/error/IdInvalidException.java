@@ -1,4 +1,4 @@
-package vn.tcl.timviec24h.service.error;
+package vn.tcl.timviec24h.util.error;
 
 public class IdInvalidException  extends Exception{
     public IdInvalidException(String message) {

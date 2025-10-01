@@ -6,11 +6,13 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import vn.tcl.timviec24h.config.SecurityConfiguration;
 import vn.tcl.timviec24h.domain.User;
 import vn.tcl.timviec24h.repository.UserRepository;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
@@ -24,8 +26,14 @@ public class UserService {
         }
         return null;
     }
+     public User getUserByUsername(String username){
+        Optional<User> user = userRepository.findByEmail(username);
+        if(user.isPresent()){
+            return user.get();
+        }
+        return null;
+    }
     public User createUser(User newUser){
-        
         return userRepository.save(newUser);
     }
     public User updateUser(long id, User updateUser){
