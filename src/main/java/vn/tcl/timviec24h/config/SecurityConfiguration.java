@@ -32,36 +32,40 @@ import vn.tcl.timviec24h.util.SecurityUtil;
 public class SecurityConfiguration {
 
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
-        @Value("${timviec24h.jwt.base64-secret}")
+    @Value("${timviec24h.jwt.base64-secret}")
     private String jwtKey;
 
     SecurityConfiguration(CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
         this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
     }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
         http
-            .csrf(c -> c.disable())
-            .authorizeHttpRequests(
-                authz ->
-                    // prettier-ignore
-                authz
-				.requestMatchers("/","/login").permitAll()
-			     .anyRequest().authenticated())
-            .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
-            .authenticationEntryPoint(customAuthenticationEntryPoint))
-            
-            //default exception
-        //     .exceptionHandling(
-        //   exceptions -> exceptions
-        //           .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()) //401
-        //            .accessDeniedHandler(new BearerTokenAccessDeniedHandler())) //403
+                .csrf(c -> c.disable())
+                .cors(Customizer.withDefaults())
+                .authorizeHttpRequests(
+                        authz ->
+                                // prettier-ignore
+                                authz
+                                        .requestMatchers("/", "/login").permitAll()
+                                        .anyRequest().authenticated()
+                )
+                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
+                        .authenticationEntryPoint(customAuthenticationEntryPoint))
 
-			.formLogin(f-> f.disable())
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                //default exception
+                //     .exceptionHandling(
+                //   exceptions -> exceptions
+                //           .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()) //401
+                //            .accessDeniedHandler(new BearerTokenAccessDeniedHandler())) //403
+
+                .formLogin(f -> f.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
     }
-     @Bean
+
+    @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         grantedAuthoritiesConverter.setAuthorityPrefix("");
@@ -74,11 +78,12 @@ public class SecurityConfiguration {
 
 
     @Bean
-public JwtEncoder jwtEncoder() {
+    public JwtEncoder jwtEncoder() {
         return new NimbusJwtEncoder(new ImmutableSecret<>(getSecretKey()));
-}
-//@FunctionalInterface    
-@Bean
+    }
+
+    //@FunctionalInterface
+    @Bean
     public JwtDecoder jwtDecoder() {
         NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(
                 getSecretKey()).macAlgorithm(SecurityUtil.JWT_ALGORITHM).build();
@@ -92,12 +97,13 @@ public JwtEncoder jwtEncoder() {
         };
     }
 
- @Bean
+    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-      private SecretKey getSecretKey() {
+
+    private SecretKey getSecretKey() {
         byte[] keyBytes = Base64.from(jwtKey).decode();
         return new SecretKeySpec(keyBytes, 0, keyBytes.length, SecurityUtil.JWT_ALGORITHM.getName());
-  }
+    }
 }
