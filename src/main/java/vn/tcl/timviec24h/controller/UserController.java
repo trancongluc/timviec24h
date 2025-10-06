@@ -1,37 +1,44 @@
 package vn.tcl.timviec24h.controller;
 
 import java.util.List;
+import java.util.Optional;
 
+import com.turkraft.springfilter.boot.Filter;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import vn.tcl.timviec24h.config.SecurityConfiguration;
 import vn.tcl.timviec24h.domain.User;
+import vn.tcl.timviec24h.domain.dto.ResCreateUserDTO;
+import vn.tcl.timviec24h.domain.dto.ResultPaginationDTO;
+import vn.tcl.timviec24h.repository.UserRepository;
 import vn.tcl.timviec24h.service.UserService;
+import vn.tcl.timviec24h.util.annotation.ApiMessage;
 import vn.tcl.timviec24h.util.error.IdInvalidException;
-
-import org.springframework.web.bind.annotation.PutMapping;
-
 
 
 @RestController
+@RequestMapping("/api/v1")
 public class UserController {
     private final UserService userService;
     private final SecurityConfiguration securityConfiguration;
+
     public UserController(UserService userService,SecurityConfiguration securityConfiguration) {
         this.userService = userService;
         this.securityConfiguration = securityConfiguration;
     }
     @GetMapping("/users")
-    public ResponseEntity<List<User>> getAllUser() {
-        return ResponseEntity.ok().body(userService.getAllUser());
+    @ApiMessage("Get All User")
+    public ResponseEntity<ResultPaginationDTO> getAllUser(
+            @Filter Specification<User> specification,
+            Pageable pageable
+            ) {
+
+        return ResponseEntity.ok().body(userService.getAllUser(specification,pageable));
     }
     @GetMapping("/users/{id}")
     public ResponseEntity<User> getUserById(@PathVariable("id") long id) {
@@ -39,16 +46,21 @@ public class UserController {
     }
     
     @PostMapping("/users")
-    public ResponseEntity<User> createNewUser(@RequestBody User newUser) {
+    @ApiMessage("Create a new User")
+    public ResponseEntity<ResCreateUserDTO> createNewUser(@RequestBody User newUser) throws IdInvalidException {
         String hasPassword = securityConfiguration.passwordEncoder().encode(newUser.getPassword());
         newUser.setPassword(hasPassword);
+        boolean isEmailExist = userService.getUserByEmail(newUser.getEmail());
+        if (isEmailExist) {
+            throw new IdInvalidException("Email: "+newUser.getEmail() +" đã tồn tại" );
+        }
        User createUser =  userService.createUser(newUser);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createUser) ;
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.convertToResCreateUserDTO(createUser)) ;
     }
-    @PutMapping("/users/{id}")
-    public ResponseEntity<User> updateUserById(@PathVariable("id") long id, @RequestBody User updateUser) {
+    @PutMapping("/users")
+    public ResponseEntity<User> updateUserById( @RequestBody User updateUser) {
         //TODO: process PUT request
-        return ResponseEntity.ok().body(userService.updateUser(id, updateUser))   ;
+        return ResponseEntity.ok().body(userService.updateUser(updateUser))   ;
     }
    
     // 204 No Content
