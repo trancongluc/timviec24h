@@ -12,6 +12,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import vn.tcl.timviec24h.repository.RestResponse;
 
 @RestControllerAdvice
@@ -24,8 +25,16 @@ public class GlobalException {
          RestResponse<Object> res = new RestResponse<Object>();
        res.setStatusCode(HttpStatus.BAD_REQUEST.value());
        res.setError(ex.getMessage());
-       res.setMessage("Thông tin đăng nhập k hợp lệ");
+       res.setMessage("Exception error....");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+    }
+    @ExceptionHandler(value = {NoResourceFoundException.class})
+    public ResponseEntity<RestResponse<Object>> hanldNotFoundException(Exception ex){
+         RestResponse<Object> res = new RestResponse<Object>();
+         res.setStatusCode(HttpStatus.NOT_FOUND.value());
+         res.setError(ex.getMessage());
+         res.setMessage("404 NOT Found. URL may not exist...");
+         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
 
      @ExceptionHandler(value = MethodArgumentNotValidException.class)

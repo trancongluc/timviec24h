@@ -8,20 +8,26 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import vn.tcl.timviec24h.domain.User;
 import vn.tcl.timviec24h.domain.dto.LoginDTO;
 import vn.tcl.timviec24h.domain.dto.ResLoginDTO;
+import vn.tcl.timviec24h.service.UserService;
 import vn.tcl.timviec24h.util.SecurityUtil;
 
 @RestController
+@RequestMapping("/api/v1")
 public class AuthController {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final SecurityUtil securityUtil;
-    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder,SecurityUtil securityUtil) {
+    private final UserService userService;
+    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder,SecurityUtil securityUtil,UserService userService) {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.securityUtil = securityUtil;
+        this.userService = userService;
     }
     @PostMapping("/login")
     public ResponseEntity<ResLoginDTO> login(@Valid @RequestBody LoginDTO loginDTO){
@@ -35,7 +41,14 @@ public class AuthController {
         String access_token = this.securityUtil.createToken(authentication);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         ResLoginDTO resLoginDTO = new ResLoginDTO();
+        User currentUserDB = userService.getUserByUsername(loginDTO.getUsername());
+        if(currentUserDB!=null){
+            ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(currentUserDB.getId(),currentUserDB.getEmail(),
+                    currentUserDB.getName());
+            resLoginDTO.setUserLogin(userLogin);
+        }
         resLoginDTO.setAccess_token(access_token);
+
         return ResponseEntity.ok().body(resLoginDTO);
     }
 }

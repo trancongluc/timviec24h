@@ -1,6 +1,8 @@
 package vn.tcl.timviec24h.service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,9 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import vn.tcl.timviec24h.domain.User;
-import vn.tcl.timviec24h.domain.dto.Meta;
-import vn.tcl.timviec24h.domain.dto.ResCreateUserDTO;
-import vn.tcl.timviec24h.domain.dto.ResultPaginationDTO;
+import vn.tcl.timviec24h.domain.dto.*;
 import vn.tcl.timviec24h.repository.UserRepository;
 
 @Service
@@ -30,6 +30,19 @@ public class UserService {
         mt.setPages(pageUser.getTotalPages());
         rs.setResult(pageUser.getContent());
         rs.setMeta(mt);
+        List<ResUserDTO> listUser = pageUser.getContent()
+                .stream().map(item ->new ResUserDTO(
+                        item.getId(),
+                        item.getName(),
+                        item.getEmail(),
+                        item.getAge(),
+                        item.getGender(),
+                        item.getAddress(),
+                        item.getCreatedAt(),
+                        item.getUpdatedAt()
+
+                )).collect(Collectors.toList());
+        rs.setResult(listUser);
         return rs;
     }
     public User getUserById(long id){
@@ -56,9 +69,10 @@ public class UserService {
     public User updateUser( User updateUser){
         User existingUser = getUserById(updateUser.getId());
         if(existingUser != null){
+            existingUser.setAddress(updateUser.getAddress());
+            existingUser.setGender(updateUser.getGender());
+            existingUser.setAge(updateUser.getAge());
             existingUser.setName(updateUser.getName());
-            existingUser.setEmail(updateUser.getEmail());
-            existingUser.setPassword(updateUser.getPassword());
             return userRepository.save(existingUser);
         }
         return existingUser;
@@ -76,5 +90,25 @@ public class UserService {
         resCreateUserDTO.setGender(user.getGender());
         resCreateUserDTO.setAddress(user.getAddress());
         return resCreateUserDTO;
+    }
+    public ResUserDTO convertToResUserDTO(User user){
+        ResUserDTO res = new ResUserDTO();
+        res.setId(user.getId());
+        res.setName(user.getName());
+        res.setAge(user.getAge());
+        res.setUpdateAt(user.getUpdatedAt());
+        res.setGender(user.getGender());
+        res.setAddress(user.getAddress());
+        return res;
+    }
+    public ResUpdateUserDTO convertToResUpdateUserDTO(User user){
+        ResUpdateUserDTO res = new ResUpdateUserDTO();
+        res.setId(user.getId());
+        res.setName(user.getName());
+        res.setAge(user.getAge());
+        res.setUpdateAt(user.getUpdatedAt());
+        res.setGender(user.getGender());
+        res.setAddress(user.getAddress());
+        return res;
     }
 }
