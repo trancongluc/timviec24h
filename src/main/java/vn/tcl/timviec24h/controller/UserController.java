@@ -1,11 +1,7 @@
 package vn.tcl.timviec24h.controller;
 
-import java.util.List;
-import java.util.Optional;
-
 import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -14,11 +10,10 @@ import org.springframework.web.bind.annotation.*;
 
 import vn.tcl.timviec24h.config.SecurityConfiguration;
 import vn.tcl.timviec24h.domain.User;
-import vn.tcl.timviec24h.domain.dto.ResCreateUserDTO;
-import vn.tcl.timviec24h.domain.dto.ResUpdateUserDTO;
-import vn.tcl.timviec24h.domain.dto.ResUserDTO;
-import vn.tcl.timviec24h.domain.dto.ResultPaginationDTO;
-import vn.tcl.timviec24h.repository.UserRepository;
+import vn.tcl.timviec24h.domain.response.ResCreateUserDTO;
+import vn.tcl.timviec24h.domain.response.ResUpdateUserDTO;
+import vn.tcl.timviec24h.domain.response.ResUserDTO;
+import vn.tcl.timviec24h.domain.response.ResultPaginationDTO;
 import vn.tcl.timviec24h.service.UserService;
 import vn.tcl.timviec24h.util.annotation.ApiMessage;
 import vn.tcl.timviec24h.util.error.IdInvalidException;

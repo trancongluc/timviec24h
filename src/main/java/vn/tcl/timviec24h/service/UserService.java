@@ -10,7 +10,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import vn.tcl.timviec24h.domain.User;
-import vn.tcl.timviec24h.domain.dto.*;
+import vn.tcl.timviec24h.domain.response.ResCreateUserDTO;
+import vn.tcl.timviec24h.domain.response.ResUpdateUserDTO;
+import vn.tcl.timviec24h.domain.response.ResUserDTO;
+import vn.tcl.timviec24h.domain.response.ResultPaginationDTO;
 import vn.tcl.timviec24h.repository.UserRepository;
 
 @Service
@@ -23,7 +26,7 @@ public class UserService {
     public ResultPaginationDTO getAllUser(Specification<User> spec, Pageable pageable){
         Page<User> pageUser = userRepository.findAll(spec,pageable);
         ResultPaginationDTO rs = new ResultPaginationDTO();
-        Meta mt = new Meta();
+        ResultPaginationDTO.Meta mt = new ResultPaginationDTO.Meta();
         mt.setPage(pageable.getPageNumber()+1);
         mt.setPageSize(pageable.getPageSize());
         mt.setTotal(pageUser.getTotalElements());

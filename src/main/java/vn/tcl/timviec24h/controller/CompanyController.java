@@ -2,20 +2,15 @@ package vn.tcl.timviec24h.controller;
 
 import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.tcl.timviec24h.domain.Company;
-import vn.tcl.timviec24h.domain.dto.ResultPaginationDTO;
-import vn.tcl.timviec24h.repository.CompanyRepository;
+import vn.tcl.timviec24h.domain.response.ResultPaginationDTO;
 import vn.tcl.timviec24h.service.CompanyService;
 import vn.tcl.timviec24h.util.annotation.ApiMessage;
-
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1")

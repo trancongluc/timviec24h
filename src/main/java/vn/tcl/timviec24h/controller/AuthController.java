@@ -2,7 +2,6 @@ package vn.tcl.timviec24h.controller;
 
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import vn.tcl.timviec24h.domain.User;
-import vn.tcl.timviec24h.domain.dto.LoginDTO;
-import vn.tcl.timviec24h.domain.dto.ResLoginDTO;
+import vn.tcl.timviec24h.domain.request.ReqLoginDTO;
+import vn.tcl.timviec24h.domain.response.ResLoginDTO;
 import vn.tcl.timviec24h.service.UserService;
 import vn.tcl.timviec24h.util.SecurityUtil;
 import vn.tcl.timviec24h.util.annotation.ApiMessage;
@@ -36,10 +35,10 @@ public class AuthController {
         this.userService = userService;
     }
     @PostMapping("/auth/login")
-    public ResponseEntity<ResLoginDTO> login(@Valid @RequestBody LoginDTO loginDTO){
+    public ResponseEntity<ResLoginDTO> login(@Valid @RequestBody ReqLoginDTO reqLoginDTO){
         //Nạp input gồm username/password vào Security
         UsernamePasswordAuthenticationToken authenticationToken 
-        = new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword());
+        = new UsernamePasswordAuthenticationToken(reqLoginDTO.getUsername(), reqLoginDTO.getPassword());
 
         //xác thực người dùng => cần viết hàm loadUserByUsername
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
@@ -47,7 +46,7 @@ public class AuthController {
         //set thông tin đăng nhập vào context (Sau này cos thể dùng)
         SecurityContextHolder.getContext().setAuthentication(authentication);
         ResLoginDTO resLoginDTO = new ResLoginDTO();
-        User currentUserDB = userService.getUserByUsername(loginDTO.getUsername());
+        User currentUserDB = userService.getUserByUsername(reqLoginDTO.getUsername());
         if(currentUserDB!=null){
             ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(currentUserDB.getId(),currentUserDB.getEmail(),
                     currentUserDB.getName());
@@ -56,8 +55,8 @@ public class AuthController {
         String access_token = this.securityUtil.createAccessToken(authentication.getName(),resLoginDTO.getUserLogin());
         resLoginDTO.setAccess_token(access_token);
         //create refresh token
-        String refreshToken = securityUtil.createRefreshToken(loginDTO.getUsername(),resLoginDTO);
-        userService.updateRefreshToken(refreshToken,loginDTO.getUsername());
+        String refreshToken = securityUtil.createRefreshToken(reqLoginDTO.getUsername(),resLoginDTO);
+        userService.updateRefreshToken(refreshToken, reqLoginDTO.getUsername());
         //set cookies
         ResponseCookie cookie = ResponseCookie.from("refresh_token",refreshToken)
                 .httpOnly(true)
@@ -71,7 +70,7 @@ public class AuthController {
     }
     @GetMapping("/auth/account")
     @ApiMessage("Fetch account")
-    public ResponseEntity<ResLoginDTO.UserGetAccount> getAccount(@Valid @RequestBody LoginDTO loginDTO){
+    public ResponseEntity<ResLoginDTO.UserGetAccount> getAccount(@Valid @RequestBody ReqLoginDTO reqLoginDTO){
         String email =  SecurityUtil.getCurrentUserLogin().isPresent() ? SecurityUtil.getCurrentUserLogin().get():"";
         User currentUserDB = userService.getUserByUsername(email);
         ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin();

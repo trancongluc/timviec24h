@@ -1,4 +1,4 @@
-package vn.tcl.timviec24h.domain.dto;
+package vn.tcl.timviec24h.domain.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
