@@ -2,6 +2,7 @@ package vn.tcl.timviec24h.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.tcl.timviec24h.domain.Company;
 import vn.tcl.timviec24h.domain.dto.Meta;
@@ -22,8 +23,8 @@ public class CompanyService {
     public Company createCompany(Company company) {
         return companyRepository.save(company);
     }
-    public ResultPaginationDTO getAllCompanies(Pageable pageable) {
-        Page<Company> companyPage = companyRepository.findAll(pageable);
+    public ResultPaginationDTO getAllCompanies(Specification<Company> spe, Pageable pageable) {
+        Page<Company> companyPage = companyRepository.findAll(spe,pageable);
         ResultPaginationDTO resultPaginationDTO = new ResultPaginationDTO();
         Meta meta = new Meta();
         meta.setPageSize(companyPage.getSize());

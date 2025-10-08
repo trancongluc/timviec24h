@@ -1,8 +1,10 @@
 package vn.tcl.timviec24h.controller;
 
+import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,12 +27,9 @@ public class CompanyController {
     }
     @GetMapping("/companies")
     @ApiMessage("Fetch company")
-    public ResponseEntity<ResultPaginationDTO> getAllCompanies(@RequestParam("current") Optional<String> currentOptional,
-                                                                     @RequestParam("pageSize") Optional<String> pageSizeOptional) {
-        String sCurrent = currentOptional.isPresent() ? currentOptional.get() : null;
-        String sPageSize = pageSizeOptional.isPresent() ? pageSizeOptional.get() : null;
-        Pageable pageable = PageRequest.of(Integer.parseInt(sCurrent)-1, Integer.parseInt(sPageSize));
-        return ResponseEntity.ok(companyService.getAllCompanies(pageable));
+    public ResponseEntity<ResultPaginationDTO> getAllCompanies(@Filter Specification<Company> spe, Pageable pageable) {
+
+        return ResponseEntity.ok(companyService.getAllCompanies(spe,pageable));
     }
     @PostMapping("/companies")
     public ResponseEntity<Company> createCompany(@Valid @RequestBody Company reqCompany) {
@@ -41,8 +40,8 @@ public class CompanyController {
         return ResponseEntity.ok(companyService.updateCompany(reqCompany));
     }
     @DeleteMapping("/companies/{id}")
-    public ResponseEntity<Company> deleteCompany(@Valid @PathVariable Long id) {
+    public ResponseEntity<Void> deleteCompany(@Valid @PathVariable Long id) {
         companyService.deleteCompany(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(null);
     }
 }

@@ -111,4 +111,14 @@ public class UserService {
         res.setAddress(user.getAddress());
         return res;
     }
+    public void updateRefreshToken(String token, String email){
+        User user = getUserByUsername(email);
+        if(user != null){
+            user.setRefreshToken(token);
+            userRepository.save(user);
+        }
+    }
+    public User getUserByRefreshTokenAndEmail(String token,String email){
+        return  userRepository.findByRefreshTokenAndEmail(token,email);
+    }
 }

@@ -85,6 +85,6 @@ public class UserController {
             throw new IdInvalidException("User với id = "+id+" không tồn tại");
         }
          userService.deleteUser(id);
-         return ResponseEntity.noContent().build();
+         return ResponseEntity.ok(null);
     }
 }
