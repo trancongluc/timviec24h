@@ -5,6 +5,7 @@ import lombok.Setter;
 import vn.tcl.timviec24h.util.constant.GenderEnum;
 
 import java.time.Instant;
+
 @Getter
 @Setter
 public class ResUpdateUserDTO {
@@ -14,4 +15,12 @@ public class ResUpdateUserDTO {
     private GenderEnum gender;
     private String address;
     private Instant updateAt;
+    private UserCompany company;
+
+    @Getter
+    @Setter
+    public static class UserCompany {
+        private long id;
+        private String name;
+    }
 }

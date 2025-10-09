@@ -5,16 +5,21 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.tcl.timviec24h.domain.Company;
+import vn.tcl.timviec24h.domain.User;
 import vn.tcl.timviec24h.domain.response.ResultPaginationDTO;
 import vn.tcl.timviec24h.repository.CompanyRepository;
+import vn.tcl.timviec24h.repository.UserRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class CompanyService {
     private final CompanyRepository companyRepository;
-    public CompanyService(CompanyRepository companyRepository) {
+    private final UserRepository userRepository;
+    public CompanyService(CompanyRepository companyRepository,UserRepository userRepository) {
         this.companyRepository = companyRepository;
+        this.userRepository = userRepository;
     }
     public Company createCompany(Company company) {
         return companyRepository.save(company);
@@ -43,6 +48,12 @@ public class CompanyService {
         return null;
     }
     public void deleteCompany(Long id) {
+        Optional<Company> company = companyRepository.findById(id);
+        if(company.isPresent()) {
+            Company existingCompany = company.get();
+            List<User> listUser = userRepository.findByCompany(existingCompany);
+            userRepository.deleteAll(listUser);
+        }
         companyRepository.deleteById(id);
     }
 }

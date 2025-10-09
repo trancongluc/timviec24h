@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.tcl.timviec24h.domain.Company;
 import vn.tcl.timviec24h.util.constant.GenderEnum;
 
 import java.time.Instant;
@@ -20,4 +21,14 @@ public class ResUserDTO {
     private String address;
     private Instant createdAt;
     private Instant updateAt;
+    private UserCompnay userCompnay;
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class UserCompnay {
+        private long id;
+        private String name;
+    }
 }
