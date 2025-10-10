@@ -1,6 +1,7 @@
 package vn.tcl.timviec24h.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -9,6 +10,7 @@ import vn.tcl.timviec24h.util.SecurityUtil;
 import vn.tcl.timviec24h.util.constant.GenderEnum;
 
 import java.time.Instant;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -18,18 +20,18 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-   private String name;
-   @NotBlank(message = "Email không được để trống")
-   private String email;
-   @NotBlank(message = "Password không được để trống")
-   private String password;
-   private int age;
-   @Enumerated(EnumType.STRING)
-   private GenderEnum gender;
+    private String name;
+    @NotBlank(message = "Email không được để trống")
+    private String email;
+    @NotBlank(message = "Password không được để trống")
+    private String password;
+    private int age;
+    @Enumerated(EnumType.STRING)
+    private GenderEnum gender;
 
-   private String address;
-   @Column(columnDefinition = "MEDIUMTEXT")
-   private String refreshToken;
+    private String address;
+    @Column(columnDefinition = "MEDIUMTEXT")
+    private String refreshToken;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
     private Instant createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
@@ -39,17 +41,22 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    @JsonIgnore
+    private List<Resume> resumes;
+
     @PrePersist
     public void handleBeforeCreatedAt() {
-        this.createdBy= SecurityUtil.getCurrentUserLogin().isPresent()==true
+        this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
                 ? SecurityUtil.getCurrentUserLogin().get() : "";
         this.createdAt = Instant.now();
     }
+
     @PreUpdate
     public void handleBeforeUpdatedAt() {
-        this.updatedBy= SecurityUtil.getCurrentUserLogin().isPresent()==true
+        this.updatedBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
                 ? SecurityUtil.getCurrentUserLogin().get() : "";
         this.updatedAt = Instant.now();
     }
-   
+
 }

@@ -120,6 +120,7 @@ public class UserService {
         res.setName(user.getName());
         res.setAge(user.getAge());
         res.setUpdateAt(user.getUpdatedAt());
+        res.setCreatedAt(user.getCreatedAt());
         res.setGender(user.getGender());
         res.setAddress(user.getAddress());
         if(user.getCompany() != null){
