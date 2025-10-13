@@ -50,9 +50,9 @@ public class AuthController {
         if(currentUserDB!=null){
             ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(currentUserDB.getId(),currentUserDB.getEmail(),
                     currentUserDB.getName());
-            resLoginDTO.setUserLogin(userLogin);
+            resLoginDTO.setUser(userLogin);
         }
-        String access_token = this.securityUtil.createAccessToken(authentication.getName(),resLoginDTO.getUserLogin());
+        String access_token = this.securityUtil.createAccessToken(authentication.getName(),resLoginDTO.getUser());
         resLoginDTO.setAccess_token(access_token);
         //create refresh token
         String refreshToken = securityUtil.createRefreshToken(reqLoginDTO.getUsername(),resLoginDTO);
@@ -70,7 +70,7 @@ public class AuthController {
     }
     @GetMapping("/auth/account")
     @ApiMessage("Fetch account")
-    public ResponseEntity<ResLoginDTO.UserGetAccount> getAccount(@Valid @RequestBody ReqLoginDTO reqLoginDTO){
+    public ResponseEntity<ResLoginDTO.UserGetAccount> getAccount(){
         String email =  SecurityUtil.getCurrentUserLogin().isPresent() ? SecurityUtil.getCurrentUserLogin().get():"";
         User currentUserDB = userService.getUserByUsername(email);
         ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin();
@@ -79,7 +79,7 @@ public class AuthController {
            userLogin.setId(currentUserDB.getId());
            userLogin.setEmail(currentUserDB.getEmail());
            userLogin.setName(currentUserDB.getName());
-           userGetAccount.setUser(userLogin);
+            userGetAccount.setUser(userLogin);
         }
         return ResponseEntity.ok().body(userGetAccount);
     }
@@ -106,9 +106,9 @@ public class AuthController {
         if(currentUserDB!=null){
             ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(currentUserDB.getId(),currentUserDB.getEmail(),
                     currentUserDB.getName());
-            resLoginDTO.setUserLogin(userLogin);
+            resLoginDTO.setUser(userLogin);
         }
-        String access_token = this.securityUtil.createAccessToken(email,resLoginDTO.getUserLogin());
+        String access_token = this.securityUtil.createAccessToken(email,resLoginDTO.getUser());
         resLoginDTO.setAccess_token(access_token);
         //create refresh token
         String newRefreshToken = securityUtil.createRefreshToken(email,resLoginDTO);

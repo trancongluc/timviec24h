@@ -1,6 +1,7 @@
 package vn.tcl.timviec24h.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import vn.tcl.timviec24h.util.SecurityUtil;
@@ -18,7 +19,9 @@ public class Resume {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    @NotBlank(message = "Email không được để trống")
     private String email;
+    @NotBlank(message = "Url không được để trống")
     private String url;
     @Enumerated(EnumType.STRING)
     private StatusResumeEnum status;

@@ -24,6 +24,9 @@ public class CompanyService {
     public Company createCompany(Company company) {
         return companyRepository.save(company);
     }
+    public Company fetchCompanyById(Long id) {
+        return companyRepository.findById(id).orElse(null);
+    }
     public ResultPaginationDTO getAllCompanies(Specification<Company> spe, Pageable pageable) {
         Page<Company> companyPage = companyRepository.findAll(spe,pageable);
         ResultPaginationDTO resultPaginationDTO = new ResultPaginationDTO();

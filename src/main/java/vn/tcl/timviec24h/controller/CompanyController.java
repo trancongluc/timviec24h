@@ -11,6 +11,7 @@ import vn.tcl.timviec24h.domain.Company;
 import vn.tcl.timviec24h.domain.response.ResultPaginationDTO;
 import vn.tcl.timviec24h.service.CompanyService;
 import vn.tcl.timviec24h.util.annotation.ApiMessage;
+import vn.tcl.timviec24h.util.error.IdInvalidException;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -23,8 +24,15 @@ public class CompanyController {
     @GetMapping("/companies")
     @ApiMessage("Fetch company")
     public ResponseEntity<ResultPaginationDTO> getAllCompanies(@Filter Specification<Company> spe, Pageable pageable) {
-
         return ResponseEntity.ok(companyService.getAllCompanies(spe,pageable));
+    }
+    @GetMapping("/companies/{id}")
+    @ApiMessage("Get company by Id")
+    public ResponseEntity<Company> companyById(@PathVariable Long id) throws IdInvalidException {
+            if (companyService.fetchCompanyById(id) == null) {
+                throw new IdInvalidException("Không tồn tại Company vs id =" + id);
+            }
+            return ResponseEntity.ok().body(companyService.fetchCompanyById(id));
     }
     @PostMapping("/companies")
     public ResponseEntity<Company> createCompany(@Valid @RequestBody Company reqCompany) {

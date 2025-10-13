@@ -38,7 +38,7 @@ public class SecurityConfiguration {
     SecurityConfiguration(CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
         this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
     }
-
+    String [] whiteList = {"/","/api/v1/auth/login","/api/v1/auth/refresh","/storage/**","/api/v1/jobs/**","/api/v1/companies/**"};
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
         http
@@ -48,7 +48,7 @@ public class SecurityConfiguration {
                         authz ->
                                 // prettier-ignore
                                 authz
-                                        .requestMatchers("/", "/api/v1/auth/login","/api/v1/auth/refresh","/storage/**").permitAll()
+                                        .requestMatchers(whiteList).permitAll()
                                         .anyRequest().authenticated()
 
                 )
