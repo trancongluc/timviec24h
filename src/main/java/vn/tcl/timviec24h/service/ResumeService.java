@@ -1,5 +1,11 @@
 package vn.tcl.timviec24h.service;
 
+import com.turkraft.springfilter.builder.FilterBuilder;
+import com.turkraft.springfilter.converter.FilterSpecification;
+import com.turkraft.springfilter.converter.FilterSpecificationConverter;
+import com.turkraft.springfilter.parser.FilterParser;
+import com.turkraft.springfilter.parser.node.FilterNode;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -12,6 +18,7 @@ import vn.tcl.timviec24h.domain.response.Resume.ResCreateResumeDTO;
 import vn.tcl.timviec24h.domain.response.Resume.ResUpdateResumeDTO;
 import vn.tcl.timviec24h.domain.response.Resume.ResumeDTO;
 import vn.tcl.timviec24h.repository.ResumeRepository;
+import vn.tcl.timviec24h.util.SecurityUtil;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +28,12 @@ public class ResumeService {
     private final ResumeRepository resumeRepository;
     private final UserService userService;
     private final JobService jobService;
-
+    @Autowired
+    FilterBuilder fb;
+    @Autowired
+    private FilterParser filterParser;
+    @Autowired
+    private FilterSpecificationConverter filterSpecificationConverter;
     public ResumeService(ResumeRepository resumeRepository, UserService userService, JobService jobService) {
         this.resumeRepository = resumeRepository;
         this.userService = userService;
@@ -139,5 +151,20 @@ public class ResumeService {
         res.setUpdatedBy(resume.getUpdatedBy());
         return res;
     }
-
+    public ResultPaginationDTO fetchResumeByUser(Pageable pageable){
+        String email = SecurityUtil.getCurrentUserLogin().isPresent() ==true
+                ? SecurityUtil.getCurrentUserLogin().get() : "";
+        FilterNode node = filterParser.parse("email=''" + email+"'");
+        FilterSpecification<Resume>  spec = filterSpecificationConverter.convert(node);
+        Page<Resume> resumePage = resumeRepository.findAll(spec,pageable);
+        ResultPaginationDTO rs = new ResultPaginationDTO();
+        ResultPaginationDTO.Meta mt = new ResultPaginationDTO.Meta();
+        mt.setPage(resumePage.getNumber()+1);
+        mt.setPages(resumePage.getTotalPages());
+        mt.setTotal(resumePage.getTotalElements());
+        mt.setPageSize(resumePage.getSize());
+        rs.setMeta(mt);
+        rs.setResult(resumePage.getContent());
+        return rs;
+    }
 }

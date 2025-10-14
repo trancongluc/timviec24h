@@ -37,7 +37,7 @@ public class AuthController {
     @PostMapping("/auth/login")
     public ResponseEntity<ResLoginDTO> login(@Valid @RequestBody ReqLoginDTO reqLoginDTO){
         //Nạp input gồm username/password vào Security
-        UsernamePasswordAuthenticationToken authenticationToken 
+        UsernamePasswordAuthenticationToken authenticationToken
         = new UsernamePasswordAuthenticationToken(reqLoginDTO.getUsername(), reqLoginDTO.getPassword());
 
         //xác thực người dùng => cần viết hàm loadUserByUsername
@@ -49,10 +49,10 @@ public class AuthController {
         User currentUserDB = userService.getUserByUsername(reqLoginDTO.getUsername());
         if(currentUserDB!=null){
             ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(currentUserDB.getId(),currentUserDB.getEmail(),
-                    currentUserDB.getName());
+                    currentUserDB.getName(),  currentUserDB.getRole());
             resLoginDTO.setUser(userLogin);
         }
-        String access_token = this.securityUtil.createAccessToken(authentication.getName(),resLoginDTO.getUser());
+        String access_token = this.securityUtil.createAccessToken(authentication.getName(),resLoginDTO);
         resLoginDTO.setAccess_token(access_token);
         //create refresh token
         String refreshToken = securityUtil.createRefreshToken(reqLoginDTO.getUsername(),resLoginDTO);
@@ -105,10 +105,10 @@ public class AuthController {
         User currentUserDB = userService.getUserByUsername(email);
         if(currentUserDB!=null){
             ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(currentUserDB.getId(),currentUserDB.getEmail(),
-                    currentUserDB.getName());
+                    currentUserDB.getName(),currentUserDB.getRole());
             resLoginDTO.setUser(userLogin);
         }
-        String access_token = this.securityUtil.createAccessToken(email,resLoginDTO.getUser());
+        String access_token = this.securityUtil.createAccessToken(email,resLoginDTO);
         resLoginDTO.setAccess_token(access_token);
         //create refresh token
         String newRefreshToken = securityUtil.createRefreshToken(email,resLoginDTO);
