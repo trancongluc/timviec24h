@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import vn.tcl.timviec24h.domain.Company;
+import vn.tcl.timviec24h.domain.Role;
 import vn.tcl.timviec24h.domain.User;
 import vn.tcl.timviec24h.domain.response.*;
 import vn.tcl.timviec24h.repository.CompanyRepository;
@@ -20,9 +21,11 @@ import vn.tcl.timviec24h.util.error.IdInvalidException;
 public class UserService {
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
-    public UserService(UserRepository userRepository,CompanyRepository companyRepository) {
+    private final RoleService roleService;
+    public UserService(UserRepository userRepository,CompanyRepository companyRepository,RoleService roleService) {
         this.userRepository = userRepository;
         this.companyRepository = companyRepository;
+        this.roleService = roleService;
     }
     public ResultPaginationDTO getAllUser(Specification<User> spec, Pageable pageable){
         Page<User> pageUser = userRepository.findAll(spec,pageable);
@@ -35,20 +38,7 @@ public class UserService {
         rs.setResult(pageUser.getContent());
         rs.setMeta(mt);
         List<ResUserDTO> listUser = pageUser.getContent()
-                .stream().map(item ->new ResUserDTO(
-                        item.getId(),
-                        item.getName(),
-                        item.getEmail(),
-                        item.getAge(),
-                        item.getGender(),
-                        item.getAddress(),
-                        item.getCreatedAt(),
-                        item.getUpdatedAt(),
-                        new ResUserDTO.UserCompnay(
-                                item.getCompany()!=null ? item.getCompany().getId():0,
-                                item.getCompany()!=null ? item.getCompany().getName():null
-                        )
-                )).collect(Collectors.toList());
+                .stream().map(item -> convertToResUserDTO(item)).collect(Collectors.toList());
         rs.setResult(listUser);
         return rs;
     }
@@ -75,6 +65,10 @@ public class UserService {
             Optional<Company> company = companyRepository.findById(newUser.getCompany().getId());
             newUser.setCompany(company.isPresent() ? company.get() : null);
         }
+        if(newUser.getRole() != null){
+            Role role = roleService.findById(newUser.getRole().getId());
+            newUser.setRole(role != null ? role : null);
+        }
         return userRepository.save(newUser);
     }
     public User updateUser( User updateUser){
@@ -89,6 +83,10 @@ public class UserService {
                 Optional<Company> comp = companyRepository.findById(updateUser.getCompany().getId());
                 existingUser.setCompany(comp.isPresent() ? comp.get() : null);
             }
+            if(updateUser.getRole() != null){
+                Role role = roleService.findById(updateUser.getRole().getId());
+                existingUser.setRole(role);
+            }
             return userRepository.save(existingUser);
         }
         return existingUser;
@@ -99,6 +97,7 @@ public class UserService {
     public ResCreateUserDTO convertToResCreateUserDTO(User user){
         ResCreateUserDTO resCreateUserDTO = new ResCreateUserDTO();
         ResCreateUserDTO.UserCompany userCompany = new ResCreateUserDTO.UserCompany();
+
         resCreateUserDTO.setId(user.getId());
         resCreateUserDTO.setEmail(user.getEmail());
         resCreateUserDTO.setName(user.getName());
@@ -110,6 +109,12 @@ public class UserService {
             userCompany.setId(user.getCompany().getId());
             userCompany.setName(user.getCompany().getName());
             resCreateUserDTO.setUserCopany(userCompany);
+        }
+        ResCreateUserDTO.UserRole userRole = new ResCreateUserDTO.UserRole();
+        if(user.getRole() != null){
+            userRole.setId(user.getRole().getId());
+            userRole.setName(user.getRole().getName());
+            resCreateUserDTO.setRole(userRole);
         }
         return resCreateUserDTO;
     }
@@ -128,6 +133,12 @@ public class UserService {
             comp.setName(user.getCompany().getName());
             res.setUserCompnay(comp);
         }
+        ResUserDTO.UserRole userRole = new ResUserDTO.UserRole();
+        if(user.getRole() != null){
+            userRole.setId(user.getRole().getId());
+            userRole.setName(user.getRole().getName());
+            res.setRole(userRole);
+        }
         return res;
     }
     public ResUpdateUserDTO convertToResUpdateUserDTO(User user){
@@ -143,6 +154,12 @@ public class UserService {
             comp.setId(user.getCompany().getId());
             comp.setName(user.getCompany().getName());
             res.setCompany(comp);
+        }
+        ResUpdateUserDTO.UserRole userRole = new ResUpdateUserDTO.UserRole();
+        if(user.getRole() != null){
+            userRole.setId(user.getRole().getId());
+            userRole.setName(user.getRole().getName());
+            res.setRole(userRole);
         }
         return res;
     }
