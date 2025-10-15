@@ -8,4 +8,6 @@ import vn.tcl.timviec24h.domain.Role;
 @Repository
 public interface RoleRepository extends JpaRepository<Role,Long>, JpaSpecificationExecutor<Role> {
     boolean existsRoleByName(String name);
+
+    Role findByName(String name);
 }

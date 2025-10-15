@@ -64,6 +64,7 @@ public class JobController {
     }
     @GetMapping("/jobs")
     public ResponseEntity<ResultPaginationDTO> getAllJobs(@Filter Specification<Job> spe, Pageable pageable){
-        return ResponseEntity.ok().body(jobService.getAllJobs(spe,pageable));
+        ResultPaginationDTO dto = jobService.getAllJobs(spe, pageable);
+        return ResponseEntity.ok().body(dto);
     }
 }

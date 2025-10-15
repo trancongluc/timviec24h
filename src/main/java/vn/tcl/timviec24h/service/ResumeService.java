@@ -152,9 +152,9 @@ public class ResumeService {
         return res;
     }
     public ResultPaginationDTO fetchResumeByUser(Pageable pageable){
-        String email = SecurityUtil.getCurrentUserLogin().isPresent() ==true
+        String email = SecurityUtil.getCurrentUserLogin().isPresent()
                 ? SecurityUtil.getCurrentUserLogin().get() : "";
-        FilterNode node = filterParser.parse("email=''" + email+"'");
+        FilterNode node = filterParser.parse("email='" + email+"'");
         FilterSpecification<Resume>  spec = filterSpecificationConverter.convert(node);
         Page<Resume> resumePage = resumeRepository.findAll(spec,pageable);
         ResultPaginationDTO rs = new ResultPaginationDTO();

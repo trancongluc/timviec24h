@@ -60,4 +60,13 @@ public class PermissionService {
         });
         permissionRepository.delete(permission);
     }
+    public boolean existNamePermission(Permission p){
+        Permission permission = findPermissionById(p.getId());
+        if(permission != null) {
+            if(permission.getName().equals(p.getName())){
+                return true;
+            }
+        }
+        return false;
+    }
 }

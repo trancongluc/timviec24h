@@ -3,6 +3,7 @@ package vn.tcl.timviec24h.controller;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,8 +14,10 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import vn.tcl.timviec24h.config.SecurityConfiguration;
 import vn.tcl.timviec24h.domain.User;
 import vn.tcl.timviec24h.domain.request.ReqLoginDTO;
+import vn.tcl.timviec24h.domain.response.ResCreateUserDTO;
 import vn.tcl.timviec24h.domain.response.ResLoginDTO;
 import vn.tcl.timviec24h.service.UserService;
 import vn.tcl.timviec24h.util.SecurityUtil;
@@ -27,12 +30,15 @@ public class AuthController {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final SecurityUtil securityUtil;
     private final UserService userService;
+    private final SecurityConfiguration securityConfiguration;
     @Value("${timviec24h.jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
-    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder,SecurityUtil securityUtil,UserService userService) {
+    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder,SecurityUtil securityUtil,UserService userService,
+                          SecurityConfiguration securityConfiguration) {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.securityUtil = securityUtil;
         this.userService = userService;
+        this.securityConfiguration = securityConfiguration;
     }
     @PostMapping("/auth/login")
     public ResponseEntity<ResLoginDTO> login(@Valid @RequestBody ReqLoginDTO reqLoginDTO){
@@ -79,6 +85,7 @@ public class AuthController {
            userLogin.setId(currentUserDB.getId());
            userLogin.setEmail(currentUserDB.getEmail());
            userLogin.setName(currentUserDB.getName());
+           userLogin.setRole(currentUserDB.getRole());
             userGetAccount.setUser(userLogin);
         }
         return ResponseEntity.ok().body(userGetAccount);
@@ -141,5 +148,17 @@ public class AuthController {
                 .build();
         return  ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE,deleteCookie.toString()).body(null);
+    }
+    @PostMapping("/auth/register")
+    @ApiMessage("Register a new User")
+    public ResponseEntity<ResCreateUserDTO> createNewUser(@Valid @RequestBody User newUser) throws IdInvalidException {
+        String hasPassword = securityConfiguration.passwordEncoder().encode(newUser.getPassword());
+        newUser.setPassword(hasPassword);
+        boolean isEmailExist = userService.getUserByEmail(newUser.getEmail());
+        if (isEmailExist) {
+            throw new IdInvalidException("Email: "+newUser.getEmail() +" đã tồn tại" );
+        }
+        User createUser =  userService.createUser(newUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.convertToResCreateUserDTO(createUser)) ;
     }
 }

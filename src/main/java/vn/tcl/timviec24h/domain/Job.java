@@ -34,7 +34,7 @@ public class Job {
     private String createdBy;
     private String updatedBy;
     @ManyToOne
-    @JoinColumn (name = "comapny_id")
+    @JoinColumn (name = "company_id")
     private Company company;
     @ManyToMany(fetch = FetchType.LAZY)
     @JsonIgnoreProperties(value = {"jobs"})

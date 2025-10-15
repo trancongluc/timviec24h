@@ -50,4 +50,13 @@ public class RoleController {
         roleService.deleteRole(id);
         return ResponseEntity.ok().body(null);
     }
+    @GetMapping("/roles/{id}")
+    @ApiMessage("fetch role by id")
+    public ResponseEntity<Role> getRoleById(@PathVariable Long id) throws IdInvalidException {
+        Role role = roleService.findById(id);
+        if(role == null) {
+            throw new IdInvalidException("Không tìm thấy role với id = "+id);
+        }
+        return ResponseEntity.ok().body(role);
+    }
 }
