@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.tcl.timviec24h.domain.Subscriber;
 import vn.tcl.timviec24h.service.SubscriberService;
+import vn.tcl.timviec24h.util.SecurityUtil;
 import vn.tcl.timviec24h.util.annotation.ApiMessage;
 import vn.tcl.timviec24h.util.error.IdInvalidException;
 
@@ -31,5 +32,11 @@ public class SubscriberController {
             throw new IdInvalidException("Không tìm thấy Subscriber với id = "+subscriber.getId());
         }
         return ResponseEntity.ok().body(subscriberService.updateSubscriber(subscriber));
+    }
+    @PostMapping("/subscriber/skills")
+    @ApiMessage("Get subscriber's Skills")
+    public ResponseEntity<Subscriber> getSubscriberSkills() throws IdInvalidException {
+        String email = SecurityUtil.getCurrentUserLogin().isPresent() ? SecurityUtil.getCurrentUserLogin().get():"";
+        return ResponseEntity.ok().body(subscriberService.findByEmail(email));
     }
 }
